@@ -512,7 +512,8 @@ namespace UnrealBuildTool
 				// it probably means we are building for another platform.
                 if(BuildType == FBBuildType.Windows)
                 {
-                    VCEnv = VCEnvironment.SetEnvironment(CppPlatform.Win64, WindowsPlatform.GetDefaultCompiler(null));
+                    VCEnv = new VCEnvironment(CppPlatform.Win64, WindowsPlatform.GetDefaultCompiler(null));
+										VCEnvironment.Create(Target.WindowsPlatform.Compiler, Platform, Target.WindowsPlatform.CompilerVersion, Target.WindowsPlatform.WindowsSdkVersion)
                 }
 				/*
                 else if (BuildType == FBBuildType.XBOne)
@@ -526,6 +527,12 @@ namespace UnrealBuildTool
 			catch (Exception)
 			{
 				Console.WriteLine("Failed to get Visual Studio environment.");
+			}
+			
+			string VCInstallDir;
+			if(!WindowsPlatform.TryGetVCInstallDir(Compiler, out VCInstallDir))
+			{
+				throw new BuildException(WindowsPlatform.GetCompilerName(Compiler) + " must be installed in order to build this target.");
 			}
 
 			// Copy environment into a case-insensitive dictionary for easier key lookups
@@ -611,15 +618,15 @@ namespace UnrealBuildTool
 
                 if(VCEnv.Compiler == WindowsCompiler.VisualStudio2015)
                 {
-                    AddText(string.Format("\t\t'{0}/redist/x64/Microsoft.VC{1}.CRT/msvcp{2}.dll'\n", VCEnv.VCInstallDir, platformVersionNumber, platformVersionNumber));
-                    AddText(string.Format("\t\t'{0}/redist/x64/Microsoft.VC{1}.CRT/vccorlib{2}.dll'\n", VCEnv.VCInstallDir, platformVersionNumber, platformVersionNumber));
+                    AddText(string.Format("\t\t'{0}/redist/x64/Microsoft.VC{1}.CRT/msvcp{2}.dll'\n", VCInstallDir, platformVersionNumber, platformVersionNumber));
+                    AddText(string.Format("\t\t'{0}/redist/x64/Microsoft.VC{1}.CRT/vccorlib{2}.dll'\n", VCInstallDir, platformVersionNumber, platformVersionNumber));
                 }
                 else 
                 {
 					//VS 2017 is really confusing in terms of version numbers and paths so these values might need to be modified depending on what version of the tool chain you
 					// chose to install.
-                    AddText(string.Format("\t\t'{0}/Redist/MSVC/14.12.25810/x64/Microsoft.VC141.CRT/msvcp{1}.dll'\n", VCEnv.VCInstallDir, platformVersionNumber));
-                    AddText(string.Format("\t\t'{0}/Redist/MSVC/14.12.25810/x64/Microsoft.VC141.CRT/vccorlib{1}.dll'\n", VCEnv.VCInstallDir, platformVersionNumber));
+                    AddText(string.Format("\t\t'{0}/Redist/MSVC/14.12.25810/x64/Microsoft.VC141.CRT/msvcp{1}.dll'\n", VCInstallDir, platformVersionNumber));
+                    AddText(string.Format("\t\t'{0}/Redist/MSVC/14.12.25810/x64/Microsoft.VC141.CRT/vccorlib{1}.dll'\n", VCInstallDir, platformVersionNumber));
                 }
 
                 AddText("\t}\n"); //End extra files
@@ -648,7 +655,7 @@ namespace UnrealBuildTool
 			AddText("\t.Environment = \n\t{\n");
 			if (VCEnv != null)
             {
-                AddText(string.Format("\t\t\"PATH={0}\\Common7\\IDE\\;{1}\",\n", VCEnv.VCInstallDir, VCEnv.VCToolPath64));
+                AddText(string.Format("\t\t\"PATH={0}\\Common7\\IDE\\;{1}\",\n", VCInstallDir, VCEnv.VCToolPath64));
             }
             if (envVars.ContainsKey("TMP"))
 				AddText(string.Format("\t\t\"TMP={0}\",\n", envVars["TMP"]));
