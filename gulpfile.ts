@@ -84,7 +84,11 @@ gulp.task("ue4-apply-patches", async () => {
   );
   await execAsync(
     "git",
-    ["apply", join(__dirname, "patches", "patch-001.patch")],
+    [
+      "apply",
+      "--ignore-whitespace",
+      join(__dirname, "patches", "patch-001.patch")
+    ],
     workingDirectory
   );
 
@@ -99,7 +103,11 @@ gulp.task("ue4-apply-patches", async () => {
   );
   await execAsync(
     "git",
-    ["apply", join(__dirname, "patches", "patch-002.patch")],
+    [
+      "apply",
+      "--ignore-whitespace",
+      join(__dirname, "patches", "patch-002.patch")
+    ],
     workingDirectory
   );
 });
@@ -147,7 +155,7 @@ gulp.task("ue4-update-options", async () => {
 
 gulp.task("ue4-build-engine", async () => {
   await execAsync(
-    join("Engine", "Build", "BatchFiles", "RunUAT"),
+    join("Engine", "Build", "BatchFiles", "RunUAT.bat"),
     [
       "BuildGraph",
       "-Script=Engine/Build/InstalledEngineBuild.xml",
