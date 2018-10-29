@@ -31,9 +31,16 @@ gulp.task("init-working-directory", async () => {
   // Checkout and switch to target branch.
   await execAsync(
     "git",
-    ["checkout", "-fB", "master", "FETCH_HEAD"],
+    ["checkout", "-fB", "build", "FETCH_HEAD"],
     workingDirectory
   );
 });
 
-gulp.task("build-ue4-custom", gulp.series("init-working-directory"));
+gulp.task("setup-ue4-deps", async () => {
+  await execAsync("Setup.bat", [], workingDirectory);
+});
+
+gulp.task(
+  "build-ue4-custom",
+  gulp.series("init-working-directory", "setup-ue4-deps")
+);
