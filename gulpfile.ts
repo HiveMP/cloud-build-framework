@@ -2,13 +2,14 @@ import * as gulp from "gulp";
 import { ConfigSchema } from "./src/configSchema";
 import { mkdirpAsync } from "./src/mkdirp";
 import { join, resolve } from "path";
-import { execAsync } from "./src/execAsync";
-import { existsSync } from "fs";
+import { execAsync, captureAsync } from "./src/execAsync";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { c } from "./src/coalesce";
 import { ncpAsync } from "./src/ncpAsync";
 
 const config = require("./config.json") as ConfigSchema;
 const workingDirectory = join(__dirname, "build", config["build-id"]);
+const refFile = join(__dirname, "build", config["build-id"] + ".ref-cache");
 
 gulp.task("init-working-directory", async () => {
   await mkdirpAsync(workingDirectory);
@@ -22,19 +23,52 @@ gulp.task("init-working-directory", async () => {
     sourceUrl = resolve(join(__dirname, sourceUrl));
   }
 
-  // Fetch target branch.
-  await execAsync(
+  const currentPointer = (await captureAsync(
     "git",
-    ["fetch", "--progress", "--depth=1", sourceUrl, c(config.branch, "master")],
+    ["ls-remote", sourceUrl, c(config.branch, "master")],
     workingDirectory
-  );
+  )).trim();
 
-  // Checkout and switch to target branch.
-  await execAsync(
-    "git",
-    ["checkout", "--progress", "-fB", "build", "FETCH_HEAD"],
-    workingDirectory
-  );
+  if (existsSync(refFile)) {
+    if (readFileSync(refFile, "utf8") === currentPointer) {
+      console.log(
+        "Working directory's current commit matches remote, not re-fetching..."
+      );
+
+      // Reset to current branch.
+      await execAsync(
+        "git",
+        ["reset", "--progess", "--hard", "HEAD"],
+        workingDirectory
+      );
+    } else {
+      console.log(
+        "Working directory does not have current commit, fetching..."
+      );
+
+      // Fetch target branch.
+      await execAsync(
+        "git",
+        [
+          "fetch",
+          "--progress",
+          "--depth=1",
+          sourceUrl,
+          c(config.branch, "master")
+        ],
+        workingDirectory
+      );
+
+      // Checkout and switch to target branch.
+      await execAsync(
+        "git",
+        ["checkout", "--progress", "-fB", "build", "FETCH_HEAD"],
+        workingDirectory
+      );
+
+      writeFileSync(refFile, currentPointer);
+    }
+  }
 });
 
 gulp.task("ue4-copy-assets", async () => {
