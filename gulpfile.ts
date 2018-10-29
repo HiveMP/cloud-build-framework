@@ -5,6 +5,7 @@ import { join, resolve } from "path";
 import { execAsync } from "./src/execAsync";
 import { existsSync } from "fs";
 import { c } from "./src/coalesce";
+import { ncpAsync } from "./src/ncpAsync";
 
 const config = require("./config.json") as ConfigSchema;
 const workingDirectory = join(__dirname, "build", config["build-id"]);
@@ -24,16 +25,23 @@ gulp.task("init-working-directory", async () => {
   // Fetch target branch.
   await execAsync(
     "git",
-    ["--progress", "fetch", "--depth=1", sourceUrl, c(config.branch, "master")],
+    ["fetch", "--progress", "--depth=1", sourceUrl, c(config.branch, "master")],
     workingDirectory
   );
 
   // Checkout and switch to target branch.
   await execAsync(
     "git",
-    ["--progress", "checkout", "-fB", "build", "FETCH_HEAD"],
+    ["checkout", "--progress", "-fB", "build", "FETCH_HEAD"],
     workingDirectory
   );
+});
+
+gulp.task("ue4-copy-assets", async () => {
+  await ncpAsync(join(__dirname, "assets"), workingDirectory, {
+    clobber: false,
+    stopOnErr: true
+  });
 });
 
 gulp.task("ue4-setup-deps", async () => {
@@ -50,5 +58,10 @@ gulp.task("ue4-apply-fixups", async () => {
 
 gulp.task(
   "build-ue4-custom",
-  gulp.series("init-working-directory", "ue4-setup-deps", "ue4-apply-fixups")
+  gulp.series(
+    "init-working-directory",
+    "ue4-copy-assets",
+    "ue4-setup-deps",
+    "ue4-apply-fixups"
+  )
 );
