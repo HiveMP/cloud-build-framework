@@ -29,45 +29,41 @@ gulp.task("init-working-directory", async () => {
     workingDirectory
   )).trim();
 
-  if (existsSync(refFile)) {
-    if (readFileSync(refFile, "utf8") === currentPointer) {
-      console.log(
-        "Working directory's current commit matches remote, not re-fetching..."
-      );
+  if (existsSync(refFile) && readFileSync(refFile, "utf8") === currentPointer) {
+    console.log(
+      "Working directory's current commit matches remote, not re-fetching..."
+    );
 
-      // Reset to current branch.
-      await execAsync(
-        "git",
-        ["reset", "--progess", "--hard", "HEAD"],
-        workingDirectory
-      );
-    } else {
-      console.log(
-        "Working directory does not have current commit, fetching..."
-      );
+    // Reset to current branch.
+    await execAsync(
+      "git",
+      ["reset", "--progess", "--hard", "HEAD"],
+      workingDirectory
+    );
+  } else {
+    console.log("Working directory does not have current commit, fetching...");
 
-      // Fetch target branch.
-      await execAsync(
-        "git",
-        [
-          "fetch",
-          "--progress",
-          "--depth=1",
-          sourceUrl,
-          c(config.branch, "master")
-        ],
-        workingDirectory
-      );
+    // Fetch target branch.
+    await execAsync(
+      "git",
+      [
+        "fetch",
+        "--progress",
+        "--depth=1",
+        sourceUrl,
+        c(config.branch, "master")
+      ],
+      workingDirectory
+    );
 
-      // Checkout and switch to target branch.
-      await execAsync(
-        "git",
-        ["checkout", "--progress", "-fB", "build", "FETCH_HEAD"],
-        workingDirectory
-      );
+    // Checkout and switch to target branch.
+    await execAsync(
+      "git",
+      ["checkout", "--progress", "-fB", "build", "FETCH_HEAD"],
+      workingDirectory
+    );
 
-      writeFileSync(refFile, currentPointer);
-    }
+    writeFileSync(refFile, currentPointer);
   }
 });
 
