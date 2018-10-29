@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "sourceMap": true,
+    "lib": ["es6"],
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "index.ts"]
+}
