@@ -3,4 +3,5 @@ export interface ConfigSchema {
   "build-id": string;
   branch: string;
   source: string;
+  options: { [optionName: string]: string };
 }

@@ -6,6 +6,8 @@ import { execAsync, captureAsync } from "./src/execAsync";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { c } from "./src/coalesce";
 import { ncpAsync } from "./src/ncpAsync";
+import { parseStringAsync } from "./src/xmlAsync";
+import { Builder } from "xml2js";
 
 const config = require("./config.json") as ConfigSchema;
 const workingDirectory = join(__dirname, "build", config["build-id"]);
@@ -35,11 +37,7 @@ gulp.task("init-working-directory", async () => {
     );
 
     // Reset to current branch.
-    await execAsync(
-      "git",
-      ["reset", "--progess", "--hard", "HEAD"],
-      workingDirectory
-    );
+    await execAsync("git", ["reset", "--hard", "HEAD"], workingDirectory);
   } else {
     console.log("Working directory does not have current commit, fetching...");
 
@@ -77,7 +75,26 @@ gulp.task("ue4-copy-assets", async () => {
 gulp.task("ue4-apply-patches", async () => {
   await execAsync(
     "git",
+    [
+      "checkout",
+      "HEAD",
+      "Engine/Source/Programs/UnrealBuildTool/System/ActionGraph.cs"
+    ],
+    workingDirectory
+  );
+  await execAsync(
+    "git",
     ["apply", join(__dirname, "patches", "patch-001.patch")],
+    workingDirectory
+  );
+
+  await execAsync(
+    "git",
+    [
+      "checkout",
+      "HEAD",
+      "Engine/Source/Programs/UnrealBuildTool/UnrealBuildTool.csproj"
+    ],
     workingDirectory
   );
   await execAsync(
@@ -97,6 +114,35 @@ gulp.task("ue4-apply-env-fixups", async () => {
     [join(__dirname, "scripts", "Fixups.ps1")],
     workingDirectory
   );
+});
+
+gulp.task("ue4-update-options", async () => {
+  const xmlPath = join(
+    workingDirectory,
+    "Engine/Build/InstalledEngineBuild.xml"
+  );
+  const xml = readFileSync(xmlPath, "utf-8");
+  const data: any = await parseStringAsync(xml);
+
+  for (const option of data.BuildGraph.Option) {
+    for (const name in config.options) {
+      if (config.options.hasOwnProperty(name)) {
+        if (option.$.Name === name) {
+          console.log(
+            `Set option ${option.$.Name}: ${option.$.DefaultValue} -> ${
+              config.options[name]
+            }`
+          );
+          option.$.DefaultValue = config.options[name];
+        }
+      }
+    }
+  }
+
+  const builder = new Builder();
+  const newXml = builder.buildObject(data);
+
+  writeFileSync(xmlPath, newXml);
 });
 
 gulp.task("ue4-build-engine", async () => {

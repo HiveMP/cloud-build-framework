@@ -6,11 +6,13 @@ index 30cf3e2519c..c82217645cf 100644
  				DateTime StartTime = DateTime.UtcNow;
  
  				ActionExecutor Executor;
-				if(bIsRemoteCompile)
+-				if(bIsRemoteCompile)
++				if (bIsRemoteCompile)
  				{
  					Executor = new RemoteExecutor();
  				}
-				else if(ActionsToExecute.Any(x => x.ActionHandler != null))
+-				else if(ActionsToExecute.Any(x => x.ActionHandler != null))
++				else if (ActionsToExecute.Any(x => x.ActionHandler != null))
  				{
  					Executor = new LocalExecutor();
  				}
@@ -22,11 +24,13 @@ index 30cf3e2519c..c82217645cf 100644
  				{
  					Executor = new XGE();
  				}
-				else if(BuildConfiguration.bAllowDistcc)
+-				else if(BuildConfiguration.bAllowDistcc)
++				else if (BuildConfiguration.bAllowDistcc)
  				{
  					Executor = new Distcc();
  				}
-				else if(SNDBS.IsAvailable() && BuildConfiguration.bAllowSNDBS)
+-				else if(SNDBS.IsAvailable() && BuildConfiguration.bAllowSNDBS)
++				else if (SNDBS.IsAvailable() && BuildConfiguration.bAllowSNDBS)
  				{
  					Executor = new SNDBS();
  				}
