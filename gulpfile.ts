@@ -24,14 +24,14 @@ gulp.task("init-working-directory", async () => {
   // Fetch target branch.
   await execAsync(
     "git",
-    ["fetch", "--depth=1", sourceUrl, c(config.branch, "master")],
+    ["--progress", "fetch", "--depth=1", sourceUrl, c(config.branch, "master")],
     workingDirectory
   );
 
   // Checkout and switch to target branch.
   await execAsync(
     "git",
-    ["checkout", "-fB", "build", "FETCH_HEAD"],
+    ["--progress", "checkout", "-fB", "build", "FETCH_HEAD"],
     workingDirectory
   );
 });
