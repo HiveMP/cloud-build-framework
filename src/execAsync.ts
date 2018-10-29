@@ -6,6 +6,7 @@ export async function execAsync(
   cwd?: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
+    console.log([command, ...args]);
     const cp = spawn(command, args, {
       cwd: cwd,
       stdio: ["ignore", process.stdout, process.stderr]
