@@ -74,14 +74,39 @@ gulp.task("ue4-copy-assets", async () => {
   });
 });
 
+gulp.task("ue4-apply-patches", async () => {
+  await execAsync(
+    "git",
+    ["apply", join(__dirname, "patches", "patch-001.patch")],
+    workingDirectory
+  );
+  await execAsync(
+    "git",
+    ["apply", join(__dirname, "patches", "patch-002.patch")],
+    workingDirectory
+  );
+});
+
 gulp.task("ue4-setup-deps", async () => {
   await execAsync("Setup.bat", ["--force"], workingDirectory);
 });
 
-gulp.task("ue4-apply-fixups", async () => {
+gulp.task("ue4-apply-env-fixups", async () => {
   await execAsync(
     "powershell",
     [join(__dirname, "scripts", "Fixups.ps1")],
+    workingDirectory
+  );
+});
+
+gulp.task("ue4-build-engine", async () => {
+  await execAsync(
+    join("Engine", "Build", "BatchFiles", "RunUAT"),
+    [
+      "BuildGraph",
+      "-Script=Engine/Build/InstalledEngineBuild.xml",
+      "-Target=Make Installed Build Win64"
+    ],
     workingDirectory
   );
 });
@@ -91,7 +116,9 @@ gulp.task(
   gulp.series(
     "init-working-directory",
     "ue4-copy-assets",
+    "ue4-apply-patches",
+    "ue4-apply-env-fixups",
     "ue4-setup-deps",
-    "ue4-apply-fixups"
+    "ue4-build-engine"
   )
 );
