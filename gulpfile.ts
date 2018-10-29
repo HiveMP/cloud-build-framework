@@ -36,11 +36,19 @@ gulp.task("init-working-directory", async () => {
   );
 });
 
-gulp.task("setup-ue4-deps", async () => {
-  await execAsync("Setup.bat", [], workingDirectory);
+gulp.task("ue4-setup-deps", async () => {
+  await execAsync("Setup.bat", ["--force"], workingDirectory);
+});
+
+gulp.task("ue4-apply-fixups", async () => {
+  await execAsync(
+    "powershell",
+    [join(__dirname, "scripts", "Fixups.ps1")],
+    workingDirectory
+  );
 });
 
 gulp.task(
   "build-ue4-custom",
-  gulp.series("init-working-directory", "setup-ue4-deps")
+  gulp.series("init-working-directory", "ue4-setup-deps", "ue4-apply-fixups")
 );

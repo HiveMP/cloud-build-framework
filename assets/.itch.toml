@@ -1,0 +1,4 @@
+[[actions]]
+name = "Launch Unreal Engine 4"
+path = "AssociateAndRunUE4.bat"
+scope = "profile:me"
