@@ -73,43 +73,7 @@ gulp.task("ue4-copy-assets", async () => {
 });
 
 gulp.task("ue4-apply-patches", async () => {
-  await execAsync(
-    "git",
-    [
-      "checkout",
-      "HEAD",
-      "Engine/Source/Programs/UnrealBuildTool/System/ActionGraph.cs"
-    ],
-    workingDirectory
-  );
-  await execAsync(
-    "git",
-    [
-      "apply",
-      "--ignore-whitespace",
-      join(__dirname, "patches", "patch-001.patch")
-    ],
-    workingDirectory
-  );
-
-  await execAsync(
-    "git",
-    [
-      "checkout",
-      "HEAD",
-      "Engine/Source/Programs/UnrealBuildTool/UnrealBuildTool.csproj"
-    ],
-    workingDirectory
-  );
-  await execAsync(
-    "git",
-    [
-      "apply",
-      "--ignore-whitespace",
-      join(__dirname, "patches", "patch-002.patch")
-    ],
-    workingDirectory
-  );
+  // Currently no patches to apply.
 });
 
 gulp.task("ue4-setup-deps", async () => {
