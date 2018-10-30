@@ -7,7 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { c } from "./src/coalesce";
 import { ncpAsync } from "./src/ncpAsync";
 import { parseStringAsync } from "./src/xmlAsync";
-import { Builder } from "xml2js";
+import * as libxmljs from "libxmljs";
 
 const config = require("./config.json") as ConfigSchema;
 const workingDirectory = join(__dirname, "build", config["build-id"]);
@@ -89,32 +89,37 @@ gulp.task("ue4-apply-env-fixups", async () => {
 });
 
 gulp.task("ue4-update-options", async () => {
+  await execAsync(
+    "git",
+    ["checkout", "HEAD", "--", "Engine/Build/InstalledEngineBuild.xml"],
+    workingDirectory
+  );
+
   const xmlPath = join(
     workingDirectory,
     "Engine/Build/InstalledEngineBuild.xml"
   );
   const xml = readFileSync(xmlPath, "utf-8");
-  const data: any = await parseStringAsync(xml);
+  const data = libxmljs.parseXmlString(xml);
 
-  for (const option of data.BuildGraph.Option) {
+  for (const element of data.find("//*[name()='Option']")) {
+    const nameAttr = element.attr("Name");
+    const defaultValueAttr = element.attr("DefaultValue");
     for (const name in config.options) {
-      if (config.options.hasOwnProperty(name)) {
-        if (option.$.Name === name) {
+      if (nameAttr !== null && nameAttr.value() === name) {
+        if (defaultValueAttr !== null) {
           console.log(
-            `Set option ${option.$.Name}: ${option.$.DefaultValue} -> ${
+            `Set option ${nameAttr.value()}: ${defaultValueAttr.value()} -> ${
               config.options[name]
             }`
           );
-          option.$.DefaultValue = config.options[name];
+          defaultValueAttr.value(config.options[name]);
         }
       }
     }
   }
 
-  const builder = new Builder();
-  const newXml = builder.buildObject(data);
-
-  writeFileSync(xmlPath, newXml);
+  writeFileSync(xmlPath, data.toString(true));
 });
 
 gulp.task("ue4-build-engine", async () => {
