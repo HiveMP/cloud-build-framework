@@ -137,6 +137,7 @@ gulp.task(
     "ue4-apply-patches",
     "ue4-apply-env-fixups",
     "ue4-setup-deps",
+    "ue4-update-options",
     "ue4-build-engine"
   )
 );
