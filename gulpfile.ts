@@ -90,7 +90,7 @@ gulp.task("ue4-setup-deps", async () => {
 gulp.task("ue4-apply-env-fixups", async () => {
   await execAsync(
     "powershell",
-    [join(__dirname, "scripts", "Fixups.ps1")],
+    ["-ExecutionPolicy", "Bypass", join(__dirname, "scripts", "Fixups.ps1")],
     workingDirectory
   );
 });
