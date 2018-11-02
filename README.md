@@ -18,8 +18,21 @@ Clone the Cloud Build Framework repository and add a `config.json` file to the r
     "WithMac": "false",
     "WithAndroid": "false",
     "WithLinux": "true",
-    "WithDDC": "false"
-  }
+    "WithLumin": "false",
+    "WithDDC": "false",
+    "WithHTML5": "false",
+    "WithIOS": "false"
+  },
+  "deployments": [
+    {
+      "type": "itch",
+      "target": "your-org/private-engine-project:windows"
+    },
+    {
+      "type": "local-copy",
+      "target": "C:\\LocalUE4"
+    }
+  ]
 }
 ```
 
