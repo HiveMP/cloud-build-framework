@@ -155,7 +155,7 @@ gulp.task("ensure-butler-available", async () => {
       result.body
         .pipe(dest)
         .on("error", reject)
-        .on("end", resolve);
+        .on("finish", resolve);
     });
   }
 
@@ -174,31 +174,28 @@ const outputDirectory = join(
   "Windows"
 );
 
+gulp.task("write-version-file", async () => {
+  const version = captureAsync("git", ["rev-parse", "HEAD"], workingDirectory);
+  writeFileSync(join(outputDirectory, "Version.txt"), version);
+});
+
 gulp.task(
   "ue4-deployment",
   gulp.series(
-    // Write version file.
-    async () => {
-      const version = captureAsync(
-        "git",
-        ["rev-parse", "HEAD"],
-        workingDirectory
-      );
-      writeFileSync(join(outputDirectory, "Version.txt"), version);
-    },
-    // Deployment steps.
+    "write-version-file",
     gulp.parallel(
       config.deployments.map(value => {
         if (value.type === "itch") {
-          return gulp.series("ensure-butler-available", async () => {
+          const pushToItchIo = async () => {
             await execAsync(
               join(__dirname, "build", "butler.exe"),
               ["push", ".", value.target],
               outputDirectory
             );
-          });
+          };
+          return gulp.series("ensure-butler-available", pushToItchIo);
         } else if (value.type === "local-copy") {
-          return async () => {
+          const localCopyTask = async () => {
             try {
               await execAsync(
                 "taskkill",
@@ -206,8 +203,16 @@ gulp.task(
                 outputDirectory
               );
             } catch {}
-            await execAsync("robocopy", [".\\", value.target + "\\", "/MIR"]);
+            try {
+              // This tool has a non-standard exit code. TODO Check it properly.
+              await execAsync(
+                "robocopy",
+                [".\\", value.target + "\\", "/MIR"],
+                outputDirectory
+              );
+            } catch {}
           };
+          return localCopyTask;
         } else {
           // Return a task that does nothing.
           return async () => {};
