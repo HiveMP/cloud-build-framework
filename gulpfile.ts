@@ -3,11 +3,18 @@ import { ConfigSchema } from "./src/configSchema";
 import { mkdirpAsync } from "./src/mkdirp";
 import { join, resolve } from "path";
 import { execAsync, captureAsync } from "./src/execAsync";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  createWriteStream,
+  createReadStream
+} from "fs";
 import { c } from "./src/coalesce";
 import { ncpAsync } from "./src/ncpAsync";
-import { parseStringAsync } from "./src/xmlAsync";
 import * as libxmljs from "libxmljs";
+import * as decompress from "decompress";
+import fetch from "node-fetch";
 
 const config = require("./config.json") as ConfigSchema;
 const workingDirectory = join(__dirname, "build", config["build-id"]);
@@ -134,6 +141,82 @@ gulp.task("ue4-build-engine", async () => {
   );
 });
 
+gulp.task("ue4-copy-itchio-assets", async () => {});
+
+gulp.task("ensure-butler-available", async () => {
+  if (!existsSync(join(__dirname, "build", "butler.zip"))) {
+    await mkdirpAsync(workingDirectory);
+    console.log("no butler available, downloading...");
+    const result = await fetch(
+      "https://broth.itch.ovh/butler/windows-amd64/LATEST/archive/default"
+    );
+    await new Promise((resolve, reject) => {
+      const dest = createWriteStream(join(__dirname, "build", "butler.zip"));
+      result.body
+        .pipe(dest)
+        .on("error", reject)
+        .on("end", resolve);
+    });
+  }
+
+  if (!existsSync(join(__dirname, "build", "butler.exe"))) {
+    await decompress(
+      join(__dirname, "build", "butler.zip"),
+      join(__dirname, "build")
+    );
+  }
+});
+
+const outputDirectory = join(
+  workingDirectory,
+  "LocalBuilds",
+  "Engine",
+  "Windows"
+);
+
+gulp.task(
+  "ue4-deployment",
+  gulp.series(
+    // Write version file.
+    async () => {
+      const version = captureAsync(
+        "git",
+        ["rev-parse", "HEAD"],
+        workingDirectory
+      );
+      writeFileSync(join(outputDirectory, "Version.txt"), version);
+    },
+    // Deployment steps.
+    gulp.parallel(
+      config.deployments.map(value => {
+        if (value.type === "itch") {
+          return gulp.series("ensure-butler-available", async () => {
+            await execAsync(
+              join(__dirname, "build", "butler.exe"),
+              ["push", ".", value.target],
+              outputDirectory
+            );
+          });
+        } else if (value.type === "local-copy") {
+          return async () => {
+            try {
+              await execAsync(
+                "taskkill",
+                ["/im", "SwarmAgent.exe", "/f"],
+                outputDirectory
+              );
+            } catch {}
+            await execAsync("robocopy", [".\\", value.target + "\\", "/MIR"]);
+          };
+        } else {
+          // Return a task that does nothing.
+          return async () => {};
+        }
+      })
+    )
+  )
+);
+
 gulp.task(
   "build-ue4-custom",
   gulp.series(
@@ -143,6 +226,7 @@ gulp.task(
     "ue4-apply-env-fixups",
     "ue4-setup-deps",
     "ue4-update-options",
-    "ue4-build-engine"
+    "ue4-build-engine",
+    "ue4-deployment"
   )
 );
