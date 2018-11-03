@@ -11,6 +11,7 @@ export interface LocalCopyDeploymentSchema {
 export interface ConfigSchema {
   "gulp-task": string;
   "build-id": string;
+  "include-server": boolean;
   branch: string;
   source: string;
   options: { [optionName: string]: string };

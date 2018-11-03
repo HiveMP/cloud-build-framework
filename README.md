@@ -8,7 +8,7 @@ Clone the Cloud Build Framework repository and add a `config.json` file to the r
 
 ```
 {
-  "gulp-task": "build-ue4-custom",
+  "gulp-task": "build-ue4-engine",
   "build-id": "1",
   "branch": "4.20.3-release",
   "source": "git@github.com:EpicGames/UnrealEngine",
@@ -23,6 +23,7 @@ Clone the Cloud Build Framework repository and add a `config.json` file to the r
     "WithHTML5": "false",
     "WithIOS": "false"
   },
+  "include-server": true,
   "deployments": [
     {
       "type": "itch",
@@ -45,11 +46,13 @@ yarn start
 
 Notable configuration options are:
 
-- `gulp-task`: Change the Gulp task that is executed inside `gulpfile.ts`. You can leave this as the default of `build-ue4-custom` to build a custom version of UE4.
+- `gulp-task`: Change the Gulp task that is executed inside `gulpfile.ts`. You can leave this as the default of `build-ue4-engine` to build a custom version of UE4.
 - `build-id`: The build subdirectory where the engine code and built artifacts are stored. If you leave this as the same ID across builds, then the intermediate files will be re-used for further invocations.
 - `branch`: The branch or tag to clone from the source repository.
 - `source`: The source Git URL to clone Unreal Engine 4 from. You can change this from the default if you want to use your own fork.
 - `options`: A map of options that will apply to `InstalledEngineBuild.xml`.
+- `with-server`: If true, the build scripts will be patched so that a precompiled version of the UE4 dedicated server is made. This allows users of your custom engine to build UE4 dedicated servers without compiling from source.
+- `deployments`: A list of deployment configurations that specify where this custom Unreal Engine build should be deployed. Currently `itch` and `local-copy` are supported.
 
 ## License
 

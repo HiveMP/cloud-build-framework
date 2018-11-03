@@ -72,10 +72,6 @@ gulp.task("init-working-directory", async () => {
   }
 });
 
-gulp.task("ue4-apply-patches", async () => {
-  // Currently no patches to apply.
-});
-
 gulp.task("ue4-setup-deps", async () => {
   await execAsync("Setup.bat", ["--force"], workingDirectory);
 });
@@ -88,13 +84,30 @@ gulp.task("ue4-apply-env-fixups", async () => {
   );
 });
 
-gulp.task("ue4-update-options", async () => {
+gulp.task("ue4-reset-options", async () => {
   await execAsync(
     "git",
     ["checkout", "HEAD", "--", "Engine/Build/InstalledEngineBuild.xml"],
     workingDirectory
   );
+  await execAsync(
+    "git",
+    ["checkout", "HEAD", "--", "Engine/Build/InstalledEngineFilters.xml"],
+    workingDirectory
+  );
+});
 
+gulp.task("ue4-apply-patches", async () => {
+  if (config["include-server"]) {
+    await execAsync(
+      "git",
+      ["apply", "../../patches/server.patch"],
+      workingDirectory
+    );
+  }
+});
+
+gulp.task("ue4-update-options", async () => {
   const xmlPath = join(
     workingDirectory,
     "Engine/Build/InstalledEngineBuild.xml"
@@ -223,15 +236,22 @@ gulp.task(
   )
 );
 
+gulp.task("build-ue4-game", gulp.series("init-working-directory"));
+
 gulp.task(
-  "build-ue4-custom",
+  "build-ue4-engine",
   gulp.series(
     "init-working-directory",
-    "ue4-apply-patches",
     "ue4-apply-env-fixups",
     "ue4-setup-deps",
+    "ue4-reset-options",
+    "ue4-apply-patches",
     "ue4-update-options",
     "ue4-build-engine",
     "ue4-deployment"
   )
 );
+
+// Aliases for older targets.
+gulp.task("build-ue4-custom", gulp.series("build-ue4-engine"));
+gulp.task("build-custom-engine", gulp.series("build-ue4-engine"));
