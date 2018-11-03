@@ -72,13 +72,6 @@ gulp.task("init-working-directory", async () => {
   }
 });
 
-gulp.task("ue4-copy-assets", async () => {
-  await ncpAsync(join(__dirname, "assets"), workingDirectory, {
-    clobber: false,
-    stopOnErr: true
-  });
-});
-
 gulp.task("ue4-apply-patches", async () => {
   // Currently no patches to apply.
 });
@@ -179,10 +172,18 @@ gulp.task("write-version-file", async () => {
   writeFileSync(join(outputDirectory, "Version.txt"), version);
 });
 
+gulp.task("ue4-copy-runtime-assets", async () => {
+  await ncpAsync(join(__dirname, "assets"), outputDirectory, {
+    clobber: false,
+    stopOnErr: true
+  });
+});
+
 gulp.task(
   "ue4-deployment",
   gulp.series(
     "write-version-file",
+    "ue4-copy-runtime-assets",
     gulp.parallel(
       config.deployments.map(value => {
         if (value.type === "itch") {
@@ -226,7 +227,6 @@ gulp.task(
   "build-ue4-custom",
   gulp.series(
     "init-working-directory",
-    "ue4-copy-assets",
     "ue4-apply-patches",
     "ue4-apply-env-fixups",
     "ue4-setup-deps",
