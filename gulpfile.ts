@@ -101,7 +101,12 @@ gulp.task("ue4-apply-patches", async () => {
   if (config["include-server"]) {
     await execAsync(
       "git",
-      ["apply", "../../patches/server.patch"],
+      [
+        "apply",
+        "--ignore-whitespace",
+        "--whitespace=nowarn",
+        "../../patches/server.patch"
+      ],
       workingDirectory
     );
   }
