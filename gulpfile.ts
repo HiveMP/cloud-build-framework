@@ -248,7 +248,7 @@ gulp.task(
   gulp.series(
     "init-working-directory",
     "ue4-apply-env-fixups",
-    "ue4-setup-deps",
+    // "ue4-setup-deps",
     "ue4-reset-options",
     "ue4-apply-patches",
     "ue4-update-options",
