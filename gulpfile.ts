@@ -73,7 +73,7 @@ gulp.task("init-working-directory", async () => {
 });
 
 gulp.task("ue4-setup-deps", async () => {
-  await execAsync("Setup.bat", ["--force"], workingDirectory);
+  await execAsync("Setup.bat", ["--force", "--exclude=Mac", "--exclude=Android", "--cache=C:\\.ue4-cache"], workingDirectory);
 });
 
 gulp.task("ue4-apply-env-fixups", async () => {
