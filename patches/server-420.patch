@@ -1,0 +1,49 @@
+diff --git a/Engine/Build/InstalledEngineBuild.xml b/Engine/Build/InstalledEngineBuild.xml
+index 0af36f058..7d7499e6b 100644
+--- a/Engine/Build/InstalledEngineBuild.xml
++++ b/Engine/Build/InstalledEngineBuild.xml
+@@ -218,6 +218,7 @@
+ 		
+ 			<ForEach Name="Configuration" Values="$(GameConfigurations)">
+ 				<Compile Target="UE4Game" Platform="Win64" Configuration="$(Configuration)" Tag="#UE4Game Win64" Arguments="-precompile $(VSCompilerArg) $(TargetDebugInfoArg)"/>
++				<Compile Target="UE4Server" Platform="Win64" Configuration="$(Configuration)" Tag="#UE4Game Win64" Arguments="-precompile $(VSCompilerArg) $(TargetDebugInfoArg)"/>
+ 			</ForEach>
+ 
+ 			<Do If="$(EmbedSrcSrvInfo)">
+@@ -247,7 +248,7 @@
+ 			</Do>
+ 
+ 			<!-- Tag the generated includes for this target -->
+-			<Tag Files="Engine/Intermediate/Build/Win64/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Win64/UE4/Inc/..." With="#UE4Game Win64 Includes"/>
++			<Tag Files="Engine/Intermediate/Build/Win64/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Win64/UE4/Inc/...;Engine/Intermediate/Build/Win64/UE4Server/Inc/...;Engine/Plugins/.../Intermediate/Build/Win64/UE4Server/Inc/..." With="#UE4Game Win64 Includes"/>
+ 		</Node>
+ 
+ 		<!-- Downstream monolithics and tools Win32 -->
+@@ -293,13 +294,14 @@
+ 		
+ 			<ForEach Name="Configuration" Values="$(GameConfigurations)">
+ 				<Compile Target="UE4Game" Platform="Linux" Configuration="$(Configuration)" Tag="#UE4Game Linux" Arguments="-precompile $(TargetDebugInfoArg)"/>
++				<Compile Target="UE4Server" Platform="Linux" Configuration="$(Configuration)" Tag="#UE4Game Linux" Arguments="-precompile $(TargetDebugInfoArg)"/>
+ 			</ForEach>
+ 			
+ 			<Tag Files="#UE4Game Linux" Filter="$(LinuxStripFilter)" With="#UE4Game Linux Unstripped"/>
+ 			<Strip BaseDir="$(RootDir)" OutputDir="$(SavedOutput)" Platform="Linux" Files="#UE4Game Linux Unstripped" Tag="#UE4Game Linux Stripped"/>
+ 
+ 			<!-- Tag the generated includes for this target -->
+-			<Tag Files="Engine/Intermediate/Build/Linux/B4D820EA/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Linux/B4D820EA/UE4/Inc/..." With="#UE4Game Linux Includes"/>
++			<Tag Files="Engine/Intermediate/Build/Linux/B4D820EA/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Linux/B4D820EA/UE4/Inc/...;Engine/Intermediate/Build/Linux/B4D820EA/UE4Server/Inc/...;Engine/Plugins/.../Intermediate/Build/Linux/B4D820EA/UE4Server/Inc/..." With="#UE4Game Linux Includes"/>
+ 		</Node>
+ 
+ 		<!-- Downstream monolithics and tools Android-->
+diff --git a/Engine/Build/InstalledEngineFilters.xml b/Engine/Build/InstalledEngineFilters.xml
+index 78e0a7917..0ea816b89 100644
+--- a/Engine/Build/InstalledEngineFilters.xml
++++ b/Engine/Build/InstalledEngineFilters.xml
+@@ -88,6 +88,7 @@
+ 		<!-- Source code -->
+ 		Engine/Source/UE4Game.Target.cs
+ 		Engine/Source/UE4Editor.Target.cs
++		Engine/Source/UE4Server.Target.cs
+ 		Engine/Source/Runtime/...
+ 		Engine/Source/Developer/...
+ 		Engine/Source/Editor/...

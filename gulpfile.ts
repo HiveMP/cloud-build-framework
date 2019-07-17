@@ -73,7 +73,11 @@ gulp.task("init-working-directory", async () => {
 });
 
 gulp.task("ue4-setup-deps", async () => {
-  await execAsync("Setup.bat", ["--force", "--exclude=Mac", "--exclude=Android", "--cache=C:\\.ue4-cache"], workingDirectory);
+  await execAsync(
+    "Setup.bat",
+    ["--force", "--exclude=Mac", "--exclude=Android", "--cache=C:\\.ue4-cache"],
+    workingDirectory
+  );
 });
 
 gulp.task("ue4-apply-env-fixups", async () => {
@@ -99,16 +103,33 @@ gulp.task("ue4-reset-options", async () => {
 
 gulp.task("ue4-apply-patches", async () => {
   if (config["include-server"]) {
-    await execAsync(
-      "git",
-      [
-        "apply",
-        "--ignore-whitespace",
-        "--whitespace=nowarn",
-        "../../patches/server.patch"
-      ],
-      workingDirectory
-    );
+    try {
+      await execAsync(
+        "git",
+        [
+          "apply",
+          "--ignore-whitespace",
+          "--whitespace=nowarn",
+          "../../patches/server-421.patch"
+        ],
+        workingDirectory
+      );
+    } catch (err) {
+      try {
+        await execAsync(
+          "git",
+          [
+            "apply",
+            "--ignore-whitespace",
+            "--whitespace=nowarn",
+            "../../patches/server-420.patch"
+          ],
+          workingDirectory
+        );
+      } catch (err) {
+        throw err;
+      }
+    }
   }
 });
 
