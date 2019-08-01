@@ -1,0 +1,50 @@
+diff --git a/Engine/Build/InstalledEngineBuild.xml b/Engine/Build/InstalledEngineBuild.xml
+index fe28925ac..11a6c0ee3 100644
+--- a/Engine/Build/InstalledEngineBuild.xml
++++ b/Engine/Build/InstalledEngineBuild.xml
+@@ -162,6 +162,8 @@
+ 		<Node Name="Compile UE4Game Win64" Requires="Compile UnrealHeaderTool Win64" Produces="#UE4Game Win64;#UE4Game Win64 Unstripped;#UE4Game Win64 Stripped;#UE4Game Win64 Unsigned;#UE4Game Win64 Signed;#UE4Game Win64 Includes">
+ 			<Compile Target="UE4Game" Platform="Win64" Configuration="Development" Tag="#UE4Game Win64" Arguments="-precompile -nodebuginfo"/>
+ 			<Compile Target="UE4Game" Platform="Win64" Configuration="Shipping" Tag="#UE4Game Win64" Arguments="-precompile -nodebuginfo"/>
++			<Compile Target="UE4Server" Platform="Win64" Configuration="Development" Tag="#UE4Game Win64" Arguments="-precompile -nodebuginfo"/>
++			<Compile Target="UE4Server" Platform="Win64" Configuration="Shipping" Tag="#UE4Game Win64" Arguments="-precompile -nodebuginfo"/>
+ 
+ 			<Do If="$(EnableSymStore)">
+ 				<!-- Embed source info into the PDB files. Should be done from this machine to ensure that paths are correct. -->
+@@ -180,7 +182,7 @@
+ 			</Do>
+ 		
+ 			<!-- Tag the generated includes for this target -->
+-			<Tag Files="Engine/Intermediate/Build/Win64/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Win64/UE4/Inc/..." With="#UE4Game Win64 Includes"/>
++			<Tag Files="Engine/Intermediate/Build/Win64/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Win64/UE4/Inc/...;Engine/Intermediate/Build/Win64/UE4Server/Inc/...;Engine/Plugins/.../Intermediate/Build/Win64/UE4Server/Inc/..." With="#UE4Game Win64 Includes"/>
+ 		</Node>
+ 
+ 		<!-- Downstream monolithics and tools Win32 -->
+@@ -212,12 +214,14 @@
+ 		<Node Name="Compile UE4Game Linux" Requires="Compile UnrealHeaderTool $(HostPlatform)" Produces="#UE4Game Linux;#UE4Game Linux Unstripped;#UE4Game Linux Stripped;#UE4Game Linux Includes">
+ 			<Compile Target="UE4Game" Platform="Linux" Configuration="Development" Tag="#UE4Game Linux" Arguments="-precompile"/>
+ 			<Compile Target="UE4Game" Platform="Linux" Configuration="Shipping" Tag="#UE4Game Linux" Arguments="-precompile"/>
++			<Compile Target="UE4Server" Platform="Linux" Configuration="Development" Tag="#UE4Game Linux" Arguments="-precompile"/>
++			<Compile Target="UE4Server" Platform="Linux" Configuration="Shipping" Tag="#UE4Game Linux" Arguments="-precompile"/>
+ 
+ 			<Tag Files="#UE4Game Linux" Filter="$(LinuxStripFilter)" With="#UE4Game Linux Unstripped"/>
+ 			<Strip BaseDir="$(RootDir)" OutputDir="$(SavedOutput)" Platform="Linux" Files="#UE4Game Linux Unstripped" Tag="#UE4Game Linux Stripped"/>
+ 
+ 			<!-- Tag the generated includes for this target -->
+-			<Tag Files="Engine/Intermediate/Build/Linux/B4D820EA/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Linux/B4D820EA/UE4/Inc/..." With="#UE4Game Linux Includes"/>
++			<Tag Files="Engine/Intermediate/Build/Linux/B4D820EA/UE4/Inc/...;Engine/Plugins/.../Intermediate/Build/Linux/B4D820EA/UE4/Inc/...;Engine/Intermediate/Build/Linux/B4D820EA/UE4Server/Inc/...;Engine/Plugins/.../Intermediate/Build/Linux/B4D820EA/UE4Server/Inc/..." With="#UE4Game Linux Includes"/>
+ 		</Node>
+ 
+ 		<!-- Downstream monolithics and tools Android-->
+diff --git a/Engine/Build/InstalledEngineFilters.xml b/Engine/Build/InstalledEngineFilters.xml
+index 76bcf2edc..2baa4b8ee 100644
+--- a/Engine/Build/InstalledEngineFilters.xml
++++ b/Engine/Build/InstalledEngineFilters.xml
+@@ -82,6 +82,7 @@
+ 		<!-- Source code -->
+ 		Engine/Source/UE4Game.Target.cs
+ 		Engine/Source/UE4Editor.Target.cs
++		Engine/Source/UE4Server.Target.cs
+ 		Engine/Source/Runtime/...
+ 		Engine/Source/Developer/...
+ 		Engine/Source/Editor/...

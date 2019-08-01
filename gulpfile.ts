@@ -103,18 +103,8 @@ gulp.task("ue4-reset-options", async () => {
 
 gulp.task("ue4-apply-patches", async () => {
   if (config["include-server"]) {
-    try {
-      await execAsync(
-        "git",
-        [
-          "apply",
-          "--ignore-whitespace",
-          "--whitespace=nowarn",
-          "../../patches/server-421.patch"
-        ],
-        workingDirectory
-      );
-    } catch (err) {
+    let didPatch = false;
+    for (const patchName of ["server-421", "server-420", "server-416"]) {
       try {
         await execAsync(
           "git",
@@ -122,13 +112,18 @@ gulp.task("ue4-apply-patches", async () => {
             "apply",
             "--ignore-whitespace",
             "--whitespace=nowarn",
-            "../../patches/server-420.patch"
+            `../../patches/${patchName}.patch`
           ],
           workingDirectory
         );
+        didPatch = true;
+        break;
       } catch (err) {
-        throw err;
+        continue;
       }
+    }
+    if (!didPatch) {
+      throw new Error("no server patch applied cleanly!");
     }
   }
 });
