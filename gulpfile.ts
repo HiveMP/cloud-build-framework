@@ -168,6 +168,57 @@ gulp.task("ue4-build-engine", async () => {
   );
 });
 
+gulp.task("ue4-copy-extras", async () => {
+  await ncpAsync(
+    join(
+      workingDirectory,
+      "Engine",
+      "Source",
+      "ThirdParty",
+      "Linux",
+      "LibCxx",
+      "include"
+    ),
+    join(
+      workingDirectory,
+      "LocalBuilds",
+      "Engine",
+      "Windows",
+      "Engine",
+      "Source",
+      "ThirdParty",
+      "Linux",
+      "LibCxx",
+      "include"
+    ),
+    {}
+  );
+  await ncpAsync(
+    join(
+      workingDirectory,
+      "Engine",
+      "Source",
+      "ThirdParty",
+      "Linux",
+      "LibCxx",
+      "lib"
+    ),
+    join(
+      workingDirectory,
+      "LocalBuilds",
+      "Engine",
+      "Windows",
+      "Engine",
+      "Source",
+      "ThirdParty",
+      "Linux",
+      "LibCxx",
+      "lib"
+    ),
+    {}
+  );
+});
+
 gulp.task("ue4-copy-itchio-assets", async () => {});
 
 gulp.task("ensure-butler-available", async () => {
@@ -269,6 +320,7 @@ gulp.task(
     "ue4-apply-patches",
     "ue4-update-options",
     "ue4-build-engine",
+    "ue4-copy-extras",
     "ue4-deployment"
   )
 );
