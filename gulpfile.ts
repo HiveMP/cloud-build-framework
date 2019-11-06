@@ -125,6 +125,8 @@ gulp.task("ue4-apply-patches", async () => {
     if (!didPatch) {
       throw new Error("no server patch applied cleanly!");
     }
+  } else {
+    return Promise.resolve();
   }
 });
 
