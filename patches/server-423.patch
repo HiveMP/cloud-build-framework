@@ -1,0 +1,34 @@
+diff --git a/Engine/Build/InstalledEngineFilters.xml b/Engine/Build/InstalledEngineFilters.xml
+index 7fb691df6c00ccb82a6def53f6ede91ac6670332..97d33e993d978fcd5a04a6d695539902271941f5 100644
+--- a/Engine/Build/InstalledEngineFilters.xml
++++ b/Engine/Build/InstalledEngineFilters.xml
+@@ -89,6 +89,7 @@
+ 		<!-- Source code -->
+ 		Engine/Source/UE4Game.Target.cs
+ 		Engine/Source/UE4Editor.Target.cs
++		Engine/Source/UE4Server.Target.cs
+ 		Engine/Source/Runtime/...
+ 		Engine/Source/Developer/...
+ 		Engine/Source/Editor/...
+diff --git a/Engine/Build/InstalledEngineBuild.xml b/Engine/Build/InstalledEngineBuild.xml
+index 113a749bc3485feb9b6825fa4efd3a267e62a47c..645b13fa5750e6a5646d0cfb867134da287b2982 100644
+--- a/Engine/Build/InstalledEngineBuild.xml
++++ b/Engine/Build/InstalledEngineBuild.xml
+@@ -213,6 +213,8 @@
+ 			<ForEach Name="Configuration" Values="$(GameConfigurations)">
+ 				<Compile Target="UE4Game" Platform="Win64" Configuration="$(Configuration)" Tag="#UE4Game Win64" Arguments="-precompile -allmodules -nolink $(VSCompilerArg) $(TargetDebugInfoArg)"/>
+ 				<Compile Target="UE4Game" Platform="Win64" Configuration="$(Configuration)" Tag="#UE4Game Win64" Arguments="-precompile $(VSCompilerArg) $(TargetDebugInfoArg)" Clean="false"/>
++				<Compile Target="UE4Server" Platform="Win64" Configuration="$(Configuration)" Tag="#UE4Game Win64" Arguments="-precompile -allmodules -nolink $(VSCompilerArg) $(TargetDebugInfoArg)"/>
++				<Compile Target="UE4Server" Platform="Win64" Configuration="$(Configuration)" Tag="#UE4Game Win64" Arguments="-precompile $(VSCompilerArg) $(TargetDebugInfoArg)" Clean="false" />
+ 			</ForEach>
+ 
+ 			<Do If="$(EmbedSrcSrvInfo)">
+@@ -284,6 +286,8 @@
+ 			<ForEach Name="Configuration" Values="$(GameConfigurations)">
+ 				<Compile Target="UE4Game" Platform="Linux" Configuration="$(Configuration)" Tag="#UE4Game Linux" Arguments="-precompile -allmodules -nolink $(TargetDebugInfoArg)"/>
+ 				<Compile Target="UE4Game" Platform="Linux" Configuration="$(Configuration)" Tag="#UE4Game Linux" Arguments="-precompile $(TargetDebugInfoArg)" Clean="false"/>
++				<Compile Target="UE4Server" Platform="Linux" Configuration="$(Configuration)" Tag="#UE4Game Linux" Arguments="-precompile -allmodules -nolink $(TargetDebugInfoArg)"/>
++				<Compile Target="UE4Server" Platform="Linux" Configuration="$(Configuration)" Tag="#UE4Game Linux" Arguments="-precompile $(TargetDebugInfoArg)"/>
+ 			</ForEach>
+ 			
+ 			<Tag Files="#UE4Game Linux" Filter="$(LinuxStripFilter)" With="#UE4Game Linux Unstripped"/>
