@@ -104,12 +104,7 @@ gulp.task("ue4-reset-options", async () => {
 gulp.task("ue4-apply-patches", async () => {
   if (config["include-server"]) {
     let didPatch = false;
-    for (const patchName of [
-      "server-423",
-      "server-421",
-      "server-420",
-      "server-416"
-    ]) {
+    for (const patchName of ["server-421", "server-420", "server-416"]) {
       try {
         await execAsync(
           "git",
